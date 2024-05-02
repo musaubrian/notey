@@ -20,7 +20,6 @@ const handleInitDB = async () => {
 
 const getLocalUser = async (db: IDBDatabase) => {
   const user = await getUser(db);
-  // console.log("USER: ", user);
   if (user.length >= 1){
     newUser.value = false
   }

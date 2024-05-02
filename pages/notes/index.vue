@@ -34,6 +34,9 @@ const loadNotes = async (db: IDBDatabase) => {
 };
 const getLocalUser = async(db: IDBDatabase) => {
   const res= await getUser(db)
+  if (res.length < 1){
+    navigateTo("/notes?newUser=true") // Better way here?
+  }
   username.value = res[0].name
 }
 
