@@ -20,14 +20,13 @@ const handleInitDB = async () => {
 
 const getLocalUser = async (db: IDBDatabase) => {
   const user = await getUser(db);
-  if (user.length >= 1){
-    newUser.value = false
+  if (user.length >= 1) {
+    newUser.value = false;
   }
 };
 const toCreateUserRoute = (userStatus: boolean) => {
-  return userStatus ? "/notes?newUser=true":"/notes"
-
-}
+  return userStatus ? "/notes?newUser=true" : "/notes";
+};
 
 onMounted(() => {
   handleInitDB();
@@ -41,10 +40,7 @@ onMounted(() => {
 
     <p>Your personal, private note taking app</p>
     <NuxtLink :to="toCreateUserRoute(newUser)">
-      {{ newUser ? "Let's get started": "Dive back in" }}
-
+      {{ newUser ? "Let's get started" : "Dive back in" }}
     </NuxtLink>
-    
-    
   </main>
 </template>

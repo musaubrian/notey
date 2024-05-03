@@ -13,6 +13,8 @@ import "@steveyuowo/vue-hot-toast/vue-hot-toast.css";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.bubble.css";
 
+const AUTO_SAVE_INTERVAL = 1000;
+
 const title = ref("");
 const content = ref("");
 const openDB = ref<IDBDatabase>();
@@ -53,12 +55,16 @@ async function handleDBInit() {
     openDB.value = db;
   }
 }
+
 const updateContent = (c: any) => {
   content.value = c;
 };
 
 onMounted(() => {
   handleDBInit();
+  toast.success("Auto saving enabled", {
+    duration: 1000,
+  });
 });
 </script>
 <template>
@@ -66,10 +72,20 @@ onMounted(() => {
   <main class="w-full items-center flex flex-col justify-center h-[100svh]">
     <QuillEditor
       content-type="html"
-      class="w-full h-5/6 border-2 border-slate-100 text-xl"
+      class="w-full h-5/6 text-xl"
       @update:content="(c) => updateContent(c)"
       theme="bubble"
+      content="Write your story..."
       @keydown.ctrl.enter.exact="handleSubmit"
     />
+
+    <div class="fixed bottom-0 inline-flex items-center justify-end w-full p-5">
+      <NuxtLink
+        to="/notes"
+        class="btn bg-slate-600/50 hover:bg-slate-700 btn-circle"
+      >
+        back
+      </NuxtLink>
+    </div>
   </main>
 </template>
