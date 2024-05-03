@@ -2,15 +2,23 @@
 import dayjs from "dayjs";
 import { onMounted, ref } from "vue";
 import idb from "~/idb/idb";
-import { getAllNotes, deleteNoteByID, type Note, createUser, type User, getUser } from "~/idb/store";
+import {
+  getAllNotes,
+  deleteNoteByID,
+  type Note,
+  createUser,
+  type User,
+  getUser,
+} from "~/idb/store";
 import { Toaster, toast } from "@steveyuowo/vue-hot-toast";
 import "@steveyuowo/vue-hot-toast/vue-hot-toast.css";
 
 const dbReady = ref(false);
-const newUser = ref(false)
-const isNewUser = useRoute().query.newUser
-const username = ref("")
-
+const newUser = ref(false);
+const isNewUser = useRoute().query.newUser;
+const username = ref("");
+const showSearch = ref(false);
+const searchValue = ref("");
 
 let openDB = ref<IDBDatabase | null>(null);
 const notes = ref<Note[]>();
@@ -22,23 +30,24 @@ const handleInitDB = async () => {
   if (db) {
     openDB.value = db;
     dbReady.value = true;
-    getLocalUser(db)
+    getLocalUser(db);
     loadNotes(db);
   } else {
-    alert("could not open DB");
+    toast.error("could not open DB");
   }
 };
 
 const loadNotes = async (db: IDBDatabase) => {
   notes.value = await getAllNotes(db);
+  sortedNotes.value = notes.value;
 };
-const getLocalUser = async(db: IDBDatabase) => {
-  const res= await getUser(db)
-  if (res.length < 1){
-    navigateTo("/notes?newUser=true") // Better way here?
+const getLocalUser = async (db: IDBDatabase) => {
+  const res = await getUser(db);
+  if (res.length < 1) {
+    navigateTo("/notes?newUser=true"); // Better way here?
   }
-  username.value = res[0].name
-}
+  username.value = res[0].name;
+};
 
 const deleteNote = async (id: string) => {
   if (openDB.value) {
@@ -55,17 +64,33 @@ const deleteNote = async (id: string) => {
 const handleCreateUser = async (e: Event) => {
   e.preventDefault();
   const user: User = {
-    name: username.value
-  }
- 
+    name: username.value,
+  };
+
   if (openDB.value) {
     const success = await createUser(openDB.value, user);
     if (success) {
       toast.success(`Saved ${user.name}`);
-      newUser.value = false
-      navigateTo("/notes") // remove the new user flag
+      newUser.value = false;
+      navigateTo("/notes"); // remove the new user flag
     }
   }
+};
+
+// I need help here
+const sortedNotes = computed(() => {
+  if (!searchValue.value) {
+    return notes.value; // If searchValue is empty, return all notes
+  }
+  if (notes.value) {
+    return notes.value.filter((note) =>
+      note.title.toLowerCase().includes(searchValue.value.toLowerCase())
+    );
+  }
+});
+
+const toggleSearch = () => {
+  showSearch.value = !showSearch.value;
 };
 
 onMounted(() => {
@@ -75,10 +100,9 @@ onMounted(() => {
     navigateTo("/notes"); //clear the error
   }
 
-if (typeof(isNewUser) === "string"){
-  newUser.value = true
-}
-// getLocalUser()
+  if (typeof isNewUser === "string") {
+    newUser.value = true;
+  }
 });
 </script>
 
@@ -87,37 +111,101 @@ if (typeof(isNewUser) === "string"){
   <main>
     <div v-show="newUser">
       <dialog class="modal" :open="newUser">
-  <div class="modal-box">
-    <form method="dialog">
-      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-    </form>
-    <form @submit="handleCreateUser" class="flex flex-col items-center justify-center gap-4 p-3 mt-2">
-    <h2 class="font-bold text-lg">What do you call yourself</h2>
-      <input required class="input input-bordered w-5/6" type="text" v-model="username" placeholder="Finn">
-      <button type="submit" class="btn bg-emerald-400/70 text-slate-800 hover:bg-emerald-400/60 transition-all transition-ease">Set username</button>
-    </form>
-  </div>
-</dialog>
+        <div class="modal-box">
+          <form method="dialog">
+            <button
+              class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            >
+              ✕
+            </button>
+          </form>
+          <form
+            @submit="handleCreateUser"
+            class="flex flex-col items-center justify-center gap-4 p-3 mt-2"
+          >
+            <h2 class="font-bold text-lg">What do you call yourself</h2>
+            <input
+              required
+              class="input input-bordered w-5/6"
+              type="text"
+              v-model="username"
+              placeholder="Finn"
+              focused
+            />
+            <button
+              type="submit"
+              class="btn bg-emerald-400/70 text-slate-800 hover:bg-emerald-400/60 transition-all transition-ease"
+            >
+              Set username
+            </button>
+          </form>
+        </div>
+      </dialog>
     </div>
-   <div class="h-[30svh] flex flex-col items-center justify-center">
-    <div class="w-full inline-flex justify-start items-center top-0 fixed p-3">
-      <h1>Hello {{ username  }}</h1>
-    </div>
-      <h1 class="text-slate-300 text-4xl font-bold">All notes</h1>
-    </div>
+    <header class="h-[30svh] flex flex-col items-center justify-center">
+      <div class="h-1/2"></div>
+      <div class="w-full flex flex-col items-center justify-center p-3">
+        <h1 class="text-slate-300 text-4xl font-bold">All notes</h1>
+        <div
+          class="w-full md:w-4/6 inline-flex justify-between items-center p-3"
+        >
+          <h1 class="text-lg">
+            Welcome <strong>{{ username }}</strong>
+          </h1>
+          <div class="inline-flex items-center justify-end gap-5">
+            <button @click="toggleSearch">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-6 h-6 font-semibold"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+            <NuxtLink to="/notes/new" class="">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32L19.513 8.2Z"
+                />
+              </svg>
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+      <div
+        v-show="showSearch"
+        class="w-5/6 p-3 md:w-3/6 inline-flex items-center justify-center"
+      >
+        <input
+          v-model="searchValue"
+          type="search"
+          placeholder="creative whale.."
+          class="input w-5/6 input-bordered"
+        />
+      </div>
+    </header>
 
     <div>
-      <div v-if="notes && notes.length >= 1">
+      <div v-if="sortedNotes && sortedNotes.length >= 1">
         <div
-          v-for="note in notes"
+          v-for="note in sortedNotes"
           :key="note.id"
           class="gap-3 flex flex-col items-center m-4"
         >
           <div
             class="w-full md:w-4/6 bg-slate-700/50 shadow-md rounded-md p-3 justify-between inline-flex items-center"
           >
-          <NuxtLink :to="`notes/${note.id}`"
-     class="w-full flex flex-col">
+            <NuxtLink :to="`notes/${note.id}`" class="w-full flex flex-col">
               <h3 class="text-lg font-semibold">{{ note.title }}</h3>
               <span class="italic text-sm">
                 {{ dayjs(note.created_at).format("MMM D, h:mm A") }}
@@ -152,7 +240,7 @@ if (typeof(isNewUser) === "string"){
       </div>
       <div v-else>
         <NuxtLink
-          to="/new"
+          to="/notes/new"
           class="inline-flex items-center justify-center w-full"
         >
           <div
@@ -166,23 +254,8 @@ if (typeof(isNewUser) === "string"){
         </NuxtLink>
       </div>
     </div>
-    <div class="fixed bottom-0 inline-flex items-center justify-end w-full p-5">
-      <NuxtLink to="/new" class="btn btn-circle">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-6 h-6"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 4.5v15m7.5-7.5h-15"
-          />
-        </svg>
-      </NuxtLink>
-    </div>
+    <div
+      class="fixed bottom-0 inline-flex items-center justify-end w-full p-5"
+    ></div>
   </main>
 </template>

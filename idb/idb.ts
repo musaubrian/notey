@@ -71,7 +71,7 @@ export default {
       const request = store.getAll();
 
       request.onsuccess = () => {
-        resolve(request.result);
+        resolve(request.result.toReversed());
       };
 
       request.onerror = (event) => {
