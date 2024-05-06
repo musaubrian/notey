@@ -7,9 +7,8 @@ Let's see how far I can push IndexDB
   - [ ] images?
     - [ ] Upload images
     - [ ] Use the camera and upload that image
-- [ ] audio?
-  - [ ] Existing audio
-  - [ ] Record using the mic
+
+-- not doing audio as it doesn't make sense now
 
 ## Features
 
@@ -18,6 +17,6 @@ Let's see how far I can push IndexDB
 - [x] Delete Note
 - [x] View single note
 - [ ] Offline first
-- [ ] Export indexDB records
+- [x] Export indexDB records
 - [ ] Import records
 - [x] Installable (PWA)
