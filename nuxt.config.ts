@@ -11,8 +11,8 @@ export default defineNuxtConfig({
   },
   pwa: {
     strategies: sw ? "injectManifest" : "generateSW",
-    srcDir: sw ? "worker" : undefined,
-    filename: sw ? "sw.ts" : undefined,
+    srcDir: sw ? "service_worker" : undefined,
+    filename: sw ? "worker.ts" : undefined,
     registerType: "autoUpdate",
 
     manifest: {
