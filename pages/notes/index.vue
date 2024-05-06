@@ -39,7 +39,6 @@ const handleInitDB = async () => {
 
 const loadNotes = async (db: IDBDatabase) => {
   notes.value = await getAllNotes(db);
-  sortedNotes.value = notes.value;
 };
 const getLocalUser = async (db: IDBDatabase) => {
   const res = await getUser(db);
@@ -77,7 +76,6 @@ const handleCreateUser = async (e: Event) => {
   }
 };
 
-// I need help here
 const sortedNotes = computed(() => {
   if (!searchValue.value) {
     return notes.value; // If searchValue is empty, return all notes
@@ -91,6 +89,19 @@ const sortedNotes = computed(() => {
 
 const toggleSearch = () => {
   showSearch.value = !showSearch.value;
+};
+const exportNotes = () => {
+  const noteyData = JSON.stringify(notes.value);
+  const blob = new Blob([noteyData], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  // Create a temporary anchor element
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${generatePrettyName().split(" ")[0]}.json`;
+  document.body.appendChild(a);
+  a.click(); // Trigger the download
+  document.body.removeChild(a);
 };
 
 onMounted(() => {
@@ -179,6 +190,41 @@ onMounted(() => {
                 />
               </svg>
             </NuxtLink>
+            <div class="dropdown dropdown-end">
+              <div tabindex="0" role="button" class="m-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="w-6 h-6"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M3 9a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 9Zm0 6.75a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+              <ul
+                tabindex="0"
+                class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+              >
+                <li>
+                  <button
+                    @click="
+                      () => {
+                        toast.error('Relax okay, I\'m working on it');
+                      }
+                    "
+                  >
+                    Import your data
+                  </button>
+                </li>
+                <li>
+                  <button @click="exportNotes">Export your data</button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
