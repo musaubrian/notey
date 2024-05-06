@@ -3,7 +3,12 @@ import process from "node:process";
 
 const sw = process.env.SW === "true";
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: false },
+  app: {
+    head: {
+      title: "Notey",
+    },
+  },
   modules: ["@nuxtjs/tailwindcss", "@vite-pwa/nuxt"],
   experimental: {
     payloadExtraction: true,
@@ -65,8 +70,6 @@ export default defineNuxtConfig({
     },
     client: {
       installPrompt: true,
-      // you don't need to include this: only for testing purposes
-      // if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
       periodicSyncForUpdates: 3600,
     },
     devOptions: {
