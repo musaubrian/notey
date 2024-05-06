@@ -41,6 +41,18 @@ export function prettifyHTML(htmlString: string): string {
     });
   });
 
+  // TODO:: Replace <a> with <NuxtLink>
+  const atag = doc.querySelectorAll("a");
+  atag.forEach((a) => {
+    const classes =
+      "text-slate-300 italic font-semibold underline text-blue-500 hover:text-blue-400 transition-all".split(
+        " "
+      );
+    classes.forEach((c) => {
+      a.classList.add(c);
+    });
+  });
+
   // Serialize the modified document back to a string
   const modifiedHtml = doc.body.innerHTML;
   return modifiedHtml;
