@@ -4,8 +4,14 @@
   <div v-if="note" class="w-full p-3 flex flex-col items-center justify-center">
     <span class="text-sm italic p-3"
       ><strong>Crafted on: </strong>
-      {{ dayjs(note.created_at).format("YYYY MMM DD, h:mm A") }}</span
+      {{ dayjs(note.created_at).format("YYYY MMM DD, h:mm A") }}
+    </span>
+    <button
+      @click="deleteNote(note?.id)"
+      class="italic text-red-600/80 font-bold transition-all hover:text-red-600/60"
     >
+      Delete note
+    </button>
     <div
       v-html="noteContent"
       class="w-full md:w-4/6 p-3 flex flex-col items-center justify-center"
@@ -41,13 +47,14 @@
 <script setup lang="ts">
 import idb from "~/idb/idb";
 import dayjs from "dayjs";
-import { getNoteByID, type Note } from "~/idb/store";
+import { deleteNoteByID, getNoteByID, type Note } from "~/idb/store";
 import { Toaster, toast } from "@steveyuowo/vue-hot-toast";
 import "@steveyuowo/vue-hot-toast/vue-hot-toast.css";
 
 const params = useRoute().params;
 
 const note = ref<Note | null>(null);
+const noteID = ref("");
 const noteContent = ref("");
 let openDB = ref<IDBDatabase | null>(null);
 
@@ -56,6 +63,7 @@ const handleInitDB = async () => {
   if (db) {
     openDB.value = db;
     if (typeof params.id === "string") {
+      noteID.value = params.id; // reuse in deletion logic
       loadNote(db, params.id);
     } else {
       toast.error("Welp");
@@ -71,6 +79,18 @@ const loadNote = async (db: IDBDatabase, id: string) => {
     noteContent.value = prettifyHTML(note.value.content);
   } else {
     navigateTo("/notes?error=note doesn't exist");
+  }
+};
+
+const deleteNote = async (id?: string) => {
+  if (openDB.value && id) {
+    const res = await deleteNoteByID(openDB.value, id);
+    if (res) {
+      navigateTo("/notes");
+      toast.success(
+        `deleted '${note.value?.title.split(" ").slice(0, 2).join(" ")}'`
+      );
+    }
   }
 };
 
