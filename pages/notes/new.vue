@@ -13,16 +13,14 @@ import "@steveyuowo/vue-hot-toast/vue-hot-toast.css";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.bubble.css";
 
-const AUTO_SAVE_INTERVAL = 1000;
+const AUTO_SAVE_INTERVAL = 3000;
 
 const title = ref("");
 const content = ref("");
 const openDB = ref<IDBDatabase>();
 const savedID = ref("");
 
-const handleSubmit = async (e: Event) => {
-  e.preventDefault();
-
+const handleSaveNote = async () => {
   // This could be cleaner
   if (openDB.value) {
     const existingNote = await getNoteByID(openDB.value, savedID.value);
@@ -49,19 +47,29 @@ const handleSubmit = async (e: Event) => {
   }
 };
 
-async function handleDBInit() {
-  const db = await idb.initDB();
-  if (db) {
-    openDB.value = db;
-  }
-}
-
 const updateContent = (c: any) => {
   content.value = c;
 };
 
-onMounted(() => {
-  handleDBInit();
+setInterval(async () => {
+  const initialContent = "Write your story...";
+  // prevents saving the initial state
+  // Needs a better way to prevent continuos saving, only when stuff changes
+  if (!content.value.includes(initialContent)) {
+    await handleSaveNote();
+  }
+}, AUTO_SAVE_INTERVAL);
+
+onMounted(async () => {
+  const db = await idb.initDB();
+  if (db) {
+    openDB.value = db;
+  }
+
+  setInterval(async () => {
+    await handleSaveNote();
+  }, AUTO_SAVE_INTERVAL);
+
   toast.success("Auto saving enabled", {
     duration: 1000,
   });
@@ -72,11 +80,11 @@ onMounted(() => {
   <main class="w-full items-center flex flex-col justify-center h-[100svh]">
     <QuillEditor
       content-type="html"
-      class="w-full h-5/6 text-xl"
+      class="w-full h-5/6 text-xl p-2"
       @update:content="(c) => updateContent(c)"
       theme="bubble"
       content="Write your story..."
-      @keydown.ctrl.enter.exact="handleSubmit"
+      @keydown.ctrl.enter.exact="handleSaveNote"
     />
 
     <div class="fixed bottom-0 inline-flex items-center justify-end w-full p-5">
