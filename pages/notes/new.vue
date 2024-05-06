@@ -14,9 +14,9 @@ import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.bubble.css";
 
 const AUTO_SAVE_INTERVAL = 3000;
-
 const title = ref("");
 const content = ref("");
+const prevContent = ref(""); // Store the previous content
 const openDB = ref<IDBDatabase>();
 const savedID = ref("");
 
@@ -48,14 +48,18 @@ const handleSaveNote = async () => {
 };
 
 const updateContent = (c: any) => {
+  prevContent.value = content.value;
   content.value = c;
 };
 
 setInterval(async () => {
   const initialContent = "Write your story...";
-  // prevents saving the initial state
-  // Needs a better way to prevent continuos saving, only when stuff changes
-  if (!content.value.includes(initialContent)) {
+
+  // Check if the content has changed
+  if (
+    content.value !== prevContent.value &&
+    !content.value.includes(initialContent)
+  ) {
     await handleSaveNote();
   }
 }, AUTO_SAVE_INTERVAL);
@@ -75,6 +79,7 @@ onMounted(async () => {
   });
 });
 </script>
+
 <template>
   <Toaster />
   <main class="w-full items-center flex flex-col justify-center h-[100svh]">
@@ -86,7 +91,6 @@ onMounted(async () => {
       content="Write your story..."
       @keydown.ctrl.enter.exact="handleSaveNote"
     />
-
     <div class="fixed bottom-0 inline-flex items-center justify-end w-full p-5">
       <NuxtLink
         to="/notes"

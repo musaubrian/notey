@@ -1,5 +1,7 @@
 // add classes to ake final rendered html nicer to look at
 export function prettifyHTML(htmlString: string): string {
+  // Remove backslashes from the entire HTML string
+  htmlString = htmlString.replace(/\\/g, "");
   htmlString = htmlString.replace(/^"(.*)"$/, "$1");
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString, "text/html");
@@ -41,7 +43,6 @@ export function prettifyHTML(htmlString: string): string {
     });
   });
 
-  // TODO:: Replace <a> with <NuxtLink>
   const atag = doc.querySelectorAll("a");
   atag.forEach((a) => {
     const classes =
@@ -53,7 +54,25 @@ export function prettifyHTML(htmlString: string): string {
     });
   });
 
-  // Serialize the modified document back to a string
-  const modifiedHtml = doc.body.innerHTML;
-  return modifiedHtml;
+  // TODO:: figure out why NuxtLink gets rendered as nuxtlink on the browser
+  const modifiedHtml = doc.body.innerHTML.replaceAll(
+    /<a(.*?)>(.*?)<\/a>/g,
+    (match, attributes, content) => {
+      const decodedAttributes = decodeURIComponent(attributes);
+      return `<NuxtLink${decodedAttributes}>${content}</NuxtLink>`;
+    }
+  );
+
+  // Replace href with to, removing backslashes and double quotes
+  const finalHtml = modifiedHtml.replaceAll(
+    /href="(.*?)"/g,
+    (match, hrefValue) => {
+      const cleanedHrefValue = decodeURIComponent(
+        hrefValue.replace(/\\|"/g, "")
+      );
+      return `to="${cleanedHrefValue}"`;
+    }
+  );
+
+  return finalHtml;
 }
