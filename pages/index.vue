@@ -35,12 +35,16 @@ onMounted(() => {
 
 <template>
   <Toaster />
-  <main class="flex flex-col items-center justify-center">
-    <h1>Notey</h1>
+  <main class="flex flex-col gap-3 items-center p-3 justify-center h-screen">
+    <h1 class="text-5xl font-semibold">Notey</h1>
+    <p class="text-xl tracking-tight text-pretty text-center w-3/6">
+      Simple and secure note-taking app.
+      Store your notes locally, import and export your
+      data, and never worry about cloud sync or data privacy.
+    </p>
 
-    <p>Your personal, private note taking app</p>
-    <NuxtLink :to="toCreateUserRoute(newUser)">
-      {{ newUser ? "Let's get started" : "Dive back in" }}
+    <NuxtLink :to="toCreateUserRoute(newUser)" class="btn bg-slate-600 text-lg hover:bg-slate-600/50 transition-all">
+      {{ newUser ? "Get started" : "Dive back in" }}
     </NuxtLink>
   </main>
 </template>

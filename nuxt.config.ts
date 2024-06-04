@@ -1,12 +1,17 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 import process from "node:process";
 
 const sw = process.env.SW === "true";
+
 export default defineNuxtConfig({
   devtools: { enabled: false },
   app: {
     head: {
       title: "Notey",
+      script: [{
+        "data-domain": "notey.nabri.xyz",
+        defer: true,
+        src: "http://plausible-i4swcws.164.90.226.112.sslip.io:8000/js/script.js"
+      }]
     },
   },
   modules: ["@nuxtjs/tailwindcss", "@vite-pwa/nuxt"],
@@ -25,8 +30,7 @@ export default defineNuxtConfig({
       short_name: "Notey",
       background_color: "#171717",
       theme_color: "#171717",
-      description:
-        "Craft your notes with the assuraty that it stays on your device",
+      description: "Craft your notes with the assuraty that it stays on your device",
       display: "standalone",
       start_url: "/notes",
       shortcuts: [
@@ -63,10 +67,27 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
+      globPatterns: ["**/*.{js,css,html,png,svg,ico,woff2}"],
+      runtimeCaching: [
+        {
+          urlPattern: ({ request }) => request.destination === 'document' || request.destination === 'script' || request.destination === 'style' || request.destination === 'image' || request.destination === 'font',
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'static-resources',
+          },
+        },
+        {
+          urlPattern: /\/api\/.*\/*.json/,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'api-cache',
+            networkTimeoutSeconds: 10,
+          },
+        },
+      ],
     },
     injectManifest: {
-      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
+      globPatterns: ["**/*.{js,css,html,png,svg,ico,woff2}"],
     },
     client: {
       installPrompt: true,
