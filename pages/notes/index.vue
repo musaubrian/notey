@@ -112,10 +112,6 @@ const exportNotes = () => {
   document.body.removeChild(a);
 };
 
-const validateNote = (note: any) => {
-  return !!(note.id && note.title && note.content);
-}
-
 const handleImport = async () => {
   const input = document.createElement("input")
   input.type = "file"
@@ -127,25 +123,17 @@ const handleImport = async () => {
 
     // @ts-ignore
     const file = target.files[0]
-
     if (!file) {
       toast.error("No file selected");
       return;
     }
 
     const reader = new FileReader();
-
     reader.onload = async (event) => {
-      const importedData = JSON.parse(event.target?.result as string);
+      const importedData = JSON.parse(event.target?.result as string) as Note[];
 
       try {
         for (const note of importedData) {
-          const validStructure = validateNote(note)
-
-          if (!validStructure) {
-            toast.error("Seems the file is corrupted")
-            return
-          }
 
           const existingNote = await getNoteByID(openDB, note.id);
           if (existingNote) {
@@ -169,6 +157,7 @@ const handleImport = async () => {
     }
     reader.readAsText(file)
   }
+  navigateTo("/notes")
 }
 
 onMounted(() => {

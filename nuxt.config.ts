@@ -68,23 +68,6 @@ export default defineNuxtConfig({
     },
     workbox: {
       globPatterns: ["**/*.{js,css,html,png,svg,ico,woff2}"],
-      runtimeCaching: [
-        {
-          urlPattern: ({ request }) => request.destination === 'document' || request.destination === 'script' || request.destination === 'style' || request.destination === 'image' || request.destination === 'font',
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'static-resources',
-          },
-        },
-        {
-          urlPattern: /\/api\/.*\/*.json/,
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'api-cache',
-            networkTimeoutSeconds: 10,
-          },
-        },
-      ],
     },
     injectManifest: {
       globPatterns: ["**/*.{js,css,html,png,svg,ico,woff2}"],

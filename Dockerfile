@@ -11,6 +11,7 @@ WORKDIR /app
 COPY package.json .
 
 RUN npm install
+RUN npm run build
 
 COPY . .
 
@@ -18,4 +19,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the application.
-CMD npm run dev
+CMD node .output/server/index.mjs
