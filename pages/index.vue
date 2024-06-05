@@ -35,12 +35,14 @@ onMounted(() => {
 
 <template>
   <Toaster />
-  <main class="flex flex-col items-center justify-center">
-    <h1>Notey</h1>
-
-    <p>Your personal, private note taking app</p>
-    <NuxtLink :to="toCreateUserRoute(newUser)">
-      {{ newUser ? "Let's get started" : "Dive back in" }}
+  <main class="flex flex-col gap-3 items-start p-3 justify-center h-screen">
+    <h1 class="text-5xl font-semibold">Notey: Your Notes, Your Way </h1>
+    <!--    <h2 class="text-3xl font-semibold">Your Notes, Your Way</h2>-->
+    <p class="text-xl tracking-tight text-pretty w-full md:w-4/6 my-3">
+      Enjoy a seamless, offline experience with all your data securely stored on your device.
+    </p>
+    <NuxtLink :to="toCreateUserRoute(newUser)" class="btn bg-slate-600 text-lg hover:bg-slate-600/50 transition-all">
+      {{ newUser ? "Get started" : "Dive back in" }}
     </NuxtLink>
   </main>
 </template>
