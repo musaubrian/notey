@@ -1,22 +1,23 @@
 ARG NODE_VERSION=20.11.1
 
-################################################################################
-# Use node image for base image for all stages.
 FROM node:${NODE_VERSION}-alpine as base
 
-# Set working directory for all build stages.
 WORKDIR /app
 
-
-COPY package.json .
+COPY package.json package-lock.json ./
 
 RUN npm install
-RUN npm run build
 
 COPY . .
 
-# Expose the port that the application listens on.
+RUN npm run build
+
+FROM node:${NODE_VERSION}-alpine as production
+
+WORKDIR /app
+
+COPY --from=base /app/.output ./.output
+
 EXPOSE 3000
 
-# Run the application.
-CMD node .output/server/index.mjs
+CMD ["node", ".output/server/index.mjs"]
