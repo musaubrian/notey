@@ -7,17 +7,15 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: "Notey",
-      script: [{
-        "data-domain": "notey.nabri.xyz",
-        defer: true,
-        src: "http://plausible.nabri.xyz/js/script.js"
-      }]
     },
   },
-  modules: ["@nuxtjs/tailwindcss", "@vite-pwa/nuxt"],
+  modules: ["@nuxtjs/tailwindcss", "@vite-pwa/nuxt", "@nuxtjs/plausible"],
   experimental: {
     payloadExtraction: true,
     watcher: "parcel",
+  },
+  plausible: {
+    apiHost: "https://plausible.nabri.xyz",
   },
   pwa: {
     strategies: sw ? "injectManifest" : "generateSW",

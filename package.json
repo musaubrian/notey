@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxtjs/plausible": "^1.0.0",
     "@steveyuowo/vue-hot-toast": "^1.2.5",
     "@vueup/vue-quill": "^1.2.0",
     "dayjs": "^1.11.11",
@@ -19,8 +20,8 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "@vite-pwa/nuxt": "^0.7.0",
     "@nuxtjs/tailwindcss": "^6.12.0",
+    "@vite-pwa/nuxt": "^0.7.0",
     "daisyui": "^4.10.3"
   }
 }
