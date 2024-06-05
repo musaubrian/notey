@@ -10,7 +10,7 @@ export default defineNuxtConfig({
       script: [{
         "data-domain": "notey.nabri.xyz",
         defer: true,
-        src: "http://plausible-i4swcws.164.90.226.112.sslip.io:8000/js/script.js"
+        src: "http://plausible.nabri.xyz/js/script.js"
       }]
     },
   },
